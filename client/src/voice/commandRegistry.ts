@@ -17,19 +17,19 @@ function thresholdFor(definition: VoiceCommandDefinition): number {
 export const VOICE_COMMANDS: VoiceCommandDefinition[] = [
   {
     id: 'nextQuestion',
-    phrases: ['next', 'next question', 'go to next question', 'go next', 'skip ahead'],
+    phrases: ['next', 'next question', 'go to next question', 'go next', 'skip ahead', 'next one', 'move to next question', 'go forward', 'continue'],
     description: 'Move to the next question',
     scopes: ['question'],
   },
   {
     id: 'previousQuestion',
-    phrases: ['previous', 'previous question', 'go back', 'go to previous question'],
+    phrases: ['previous', 'previous question', 'go back', 'go to previous question', 'previous one', 'move to previous question', 'go back question'],
     description: 'Move to the previous question',
     scopes: ['question'],
   },
   {
     id: 'readQuestion',
-    phrases: ['read question', 'read this question', 'what is the question'],
+    phrases: ['read question', 'read this question', 'what is the question', 'read the question', 'read current question', 'what is this question'],
     description: 'Read the current question',
     scopes: ['question', 'results'],
   },
@@ -47,79 +47,79 @@ export const VOICE_COMMANDS: VoiceCommandDefinition[] = [
   },
   {
     id: 'readTimer',
-    phrases: ['read timer', 'time remaining', 'how much time is left'],
+    phrases: ['read timer', 'time remaining', 'how much time is left', 'check time', 'check timer', 'remaining time', 'how much time', 'what is the time'],
     description: 'Read the remaining exam time',
     scopes: ['question'],
   },
   {
     id: 'flagQuestion',
-    phrases: ['flag question', 'flag this question', 'mark question for review'],
+    phrases: ['flag question', 'flag this question', 'mark question for review', 'flag', 'mark question', 'unflag question'],
     description: 'Flag the current question for review',
     scopes: ['question'],
   },
   {
     id: 'runTests',
-    phrases: ['run tests', 'run the tests', 'execute tests'],
+    phrases: ['run tests', 'run the tests', 'execute tests', 'run code', 'test code'],
     description: 'Run the current coding question tests',
     scopes: ['editor', 'question'],
   },
   {
     id: 'readTestResults',
-    phrases: ['read test results', 'read the test results', 'what were the test results'],
+    phrases: ['read test results', 'read the test results', 'what were the test results', 'test results'],
     description: 'Read the latest coding test results',
     scopes: ['editor', 'question'],
   },
   {
     id: 'readResults',
-    phrases: ['read results', 'show my results', 'tell me my result'],
+    phrases: ['read results', 'show my results', 'tell me my result', 'my results'],
     description: 'Read the exam results',
     scopes: ['results'],
   },
   {
     id: 'help',
-    phrases: ['help', 'what can i say', 'voice commands', 'give me help'],
+    phrases: ['help', 'what can i say', 'voice commands', 'give me help', 'help me', 'commands', 'show commands', 'list commands', 'available commands'],
     description: 'List commands available in this context',
     scopes: ['global', 'question', 'editor', 'results'],
   },
   {
     id: 'repeat',
-    phrases: ['repeat', 'say that again'],
+    phrases: ['repeat', 'say that again', 'repeat that', 'repeat again'],
     description: 'Repeat the last important announcement',
     scopes: ['global', 'question', 'editor', 'results'],
   },
   {
     id: 'cancel',
-    phrases: ['cancel', 'stop', 'be quiet', 'no'],
+    phrases: ['cancel', 'stop', 'be quiet', 'no', 'stop talking', 'silence'],
     description: 'Cancel the current voice action or speech',
     scopes: ['global', 'question', 'editor', 'results'],
   },
   {
     id: 'pauseSpeech',
-    phrases: ['pause speech', 'pause speaking'],
+    phrases: ['pause speech', 'pause speaking', 'pause'],
     description: 'Pause speech',
     scopes: ['global', 'question', 'editor', 'results'],
   },
   {
     id: 'resumeSpeech',
-    phrases: ['resume speech', 'resume speaking'],
+    phrases: ['resume speech', 'resume speaking', 'resume', 'continue speaking'],
     description: 'Resume speech',
     scopes: ['global', 'question', 'editor', 'results'],
   },
   {
     id: 'increaseSpeechRate',
-    phrases: ['speak faster', 'speech faster', 'increase speech rate'],
+    phrases: ['speak faster', 'speech faster', 'increase speech rate', 'talk faster', 'faster'],
     description: 'Increase the speech rate',
     scopes: ['global', 'question', 'editor', 'results'],
   },
   {
     id: 'decreaseSpeechRate',
-    phrases: ['speak slower', 'speech slower', 'decrease speech rate'],
+    phrases: ['speak slower', 'speech slower', 'decrease speech rate', 'talk slower', 'slower'],
     description: 'Decrease the speech rate',
     scopes: ['global', 'question', 'editor', 'results'],
   },
   {
     id: 'stageSubmit',
-    phrases: ['submit exam', 'finish exam', 'end exam'],
+    phrases: ['submit exam', 'finish exam', 'end exam', 'complete exam', 'finish the exam', 'submit the exam'],
     description: 'Prepare the exam for submission',
     scopes: ['question'],
     destructive: true,
@@ -133,43 +133,43 @@ export const VOICE_COMMANDS: VoiceCommandDefinition[] = [
   },
   {
     id: 'readOptions',
-    phrases: ['read the options', 'read options', 'what are the options'],
+    phrases: ['read the options', 'read options', 'what are the options', 'read all options', 'read choices', 'what are the choices', 'read the choices'],
     description: 'Read all answer options for the current question',
     scopes: ['question'],
   },
   {
     id: 'clearAnswer',
-    phrases: ['clear answer', 'clear my answer', 'remove answer'],
+    phrases: ['clear answer', 'clear my answer', 'remove answer', 'clear option', 'reset answer'],
     description: 'Clear the selected answer for the current question',
     scopes: ['question'],
   },
   {
     id: 'readSelectedAnswer',
-    phrases: ['read my answer', 'read selected answer', 'what did i select'],
+    phrases: ['read my answer', 'read selected answer', 'what did i select', 'what is my answer', 'check my answer'],
     description: 'Read back the currently selected answer',
     scopes: ['question'],
   },
   {
     id: 'submitAnswer',
-    phrases: ['submit answer', 'save answer', 'confirm answer'],
+    phrases: ['submit answer', 'save answer', 'confirm answer', 'save and next', 'save and continue'],
     description: 'Confirm the current answer and move on',
     scopes: ['question'],
   },
   {
     id: 'navigateHome',
-    phrases: ['go home', 'take me home', 'open dashboard', 'go to dashboard'],
+    phrases: ['go home', 'take me home', 'open dashboard', 'go to dashboard', 'dashboard', 'home'],
     description: 'Go to the dashboard',
     scopes: ['global'],
   },
   {
     id: 'openProfile',
-    phrases: ['open profile', 'go to profile'],
+    phrases: ['open profile', 'go to profile', 'profile'],
     description: 'Open your profile',
     scopes: ['global'],
   },
   {
     id: 'openAccessibilityProfile',
-    phrases: ['open accessibility profile', 'go to accessibility profile', 'accessibility profile'],
+    phrases: ['open accessibility profile', 'go to accessibility profile', 'accessibility profile', 'accessibility settings'],
     description: 'Open your accessibility profile',
     scopes: ['global'],
   },
@@ -181,7 +181,7 @@ export const VOICE_COMMANDS: VoiceCommandDefinition[] = [
   },
   {
     id: 'openSettings',
-    phrases: ['open settings', 'go to settings'],
+    phrases: ['open settings', 'go to settings', 'settings'],
     description: 'Open settings',
     scopes: ['global'],
   },
@@ -193,7 +193,7 @@ export const VOICE_COMMANDS: VoiceCommandDefinition[] = [
   },
   {
     id: 'startExam',
-    phrases: ['start exam'],
+    phrases: ['start exam', 'begin exam', 'take exam'],
     description: 'Start an available exam',
     scopes: ['global'],
   },
@@ -223,9 +223,14 @@ export function normalizeTranscript(value: string): string {
 
 function getOptionArgument(transcript: string, verb: 'read' | 'select'): string | undefined {
   const normalized = normalizeTranscript(transcript);
-  const starters = verb === 'read' ? 'read|what|repeat' : 'select|choose|answer';
+  if (verb === 'read') {
+    const match = normalized.match(
+      /^(?:(?:read|what|repeat|check)(?:\s+option|\s+answer)?)\s+([a-z]|[1-9][0-9]?|true|false)$/,
+    );
+    return match?.[1]?.toUpperCase();
+  }
   const match = normalized.match(
-    new RegExp(`^(?:${starters})(?: option| answer)?\\s+([a-z]|[1-9][0-9]?|true|false)$`),
+    /^(?:(?:select|choose|answer|pick)(?:\s+option|\s+answer)?|option)\s+([a-z]|[1-9][0-9]?|true|false)$/,
   );
   return match?.[1]?.toUpperCase();
 }

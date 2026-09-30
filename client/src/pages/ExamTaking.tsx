@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QuestionRenderer } from '@/components/QuestionRenderer';
 import { VoiceControl } from '@/components/VoiceControl';
 import type { CodeEditorVoiceActions } from '@/components/CodeEditor';
@@ -1057,54 +1058,183 @@ export default function ExamTaking({ currentUser }: ExamTakingProps) {
           HELP DIALOG
       ═══════════════════════════════════════ */}
       <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
-        <DialogContent className="max-w-lg" aria-describedby="help-dialog-desc">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" aria-describedby="help-dialog-desc">
           <DialogHeader>
             <div className="flex items-center gap-3 mb-1">
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Keyboard className="h-5 w-5 text-primary" aria-hidden="true" />
+                <HelpCircle className="h-5 w-5 text-primary" aria-hidden="true" />
               </div>
-              <DialogTitle>Keyboard Shortcuts & Help</DialogTitle>
+              <DialogTitle>Exam Help & Shortcuts</DialogTitle>
             </div>
             <DialogDescription id="help-dialog-desc" className="text-sm">
-              Use these shortcuts for faster navigation during your exam.
+              Spoken commands and keyboard shortcuts for navigating and completing your exam.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2 my-2">
-            {[
-              { keys: ['Alt', 'N'], label: 'Next question' },
-              { keys: ['Alt', 'P'], label: 'Previous question' },
-              { keys: ['Alt', 'F'], label: 'Flag/unflag question' },
-              { keys: ['Alt', 'R'], label: 'Read question aloud' },
-              { keys: ['Alt', 'H'], label: 'Open this help dialog' },
-              { keys: ['Ctrl', 'M'], label: 'Toggle voice input (short answer)' },
-              { keys: ['Ctrl', 'Shift', 'Space'], label: 'Start or stop a voice command' },
-              { keys: ['Tab'], label: 'Move to next element' },
-              { keys: ['Enter', 'Space'], label: 'Activate buttons & select answers' },
-            ].map(s => (
-              <div key={s.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                <span className="text-sm text-foreground">{s.label}</span>
-                <div className="flex items-center gap-1">
-                  {s.keys.map((k, i) => (
-                    <span key={k} className="flex items-center gap-1">
-                      <kbd className="inline-flex items-center px-2 py-0.5 rounded bg-muted border border-border text-xs font-mono font-semibold">{k}</kbd>
-                      {i < s.keys.length - 1 && <span className="text-muted-foreground text-xs">+</span>}
-                    </span>
-                  ))}
+          <Tabs defaultValue="voice" className="w-full mt-2">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="voice" className="flex items-center gap-2">
+                <Mic className="h-4 w-4" />
+                Voice Commands
+              </TabsTrigger>
+              <TabsTrigger value="keyboard" className="flex items-center gap-2">
+                <Keyboard className="h-4 w-4" />
+                Keyboard Shortcuts
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="voice" className="space-y-4 pt-3">
+              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-muted-foreground">
+                <strong className="text-foreground">Tip:</strong> Press <kbd className="px-1.5 py-0.5 rounded bg-muted border font-mono font-semibold">Ctrl + Shift + Space</kbd> to toggle OPSIS Assist voice listener, or speak naturally if continuous assist is on.
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Question Navigation</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"next question"</span> or <span className="font-semibold text-primary">"next"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Move to the next question</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"previous question"</span> or <span className="font-semibold text-primary">"previous"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Move to previous question</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Answering & Options</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"select option [A/B/C/D]"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Or say "choose A", "option B"</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"read options"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Reads all choices aloud</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"read option [A/B/C/D]"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Reads a single choice aloud</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"read my answer"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Hear currently selected answer</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"clear answer"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Unselects your answer</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"submit answer"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Saves answer and goes next</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Reading & Information</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"read question"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Reads question statement</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"read timer"</span> / <span className="font-semibold text-primary">"time remaining"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Reads time left</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"flag question"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Marks question for review</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"repeat"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Re-reads the last announcement</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Coding & Submission</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"run tests"</span> / <span className="font-semibold text-primary">"run code"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Executes coding question tests</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"read test results"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Announces passed test count</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"submit exam"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Opens submission confirmation</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"confirm submit"</span> or <span className="font-semibold text-primary">"yes"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Confirms final submission</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Speech Rate & Control</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"speak faster"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Speed up speech</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"speak slower"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Slow down speech</p>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50 border border-border/60">
+                      <span className="font-semibold text-primary">"cancel"</span> / <span className="font-semibold text-primary">"stop"</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">Stop speaking</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </TabsContent>
 
-          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-              Compatible with NVDA, JAWS, VoiceOver, and Orca screen readers.
-              All questions are read automatically when navigating.
-            </p>
-          </div>
+            <TabsContent value="keyboard" className="pt-3">
+              <div className="space-y-2 my-2">
+                {[
+                  { keys: ['Alt', 'N'], label: 'Next question' },
+                  { keys: ['Alt', 'P'], label: 'Previous question' },
+                  { keys: ['Alt', 'F'], label: 'Flag/unflag question' },
+                  { keys: ['Alt', 'R'], label: 'Read question aloud' },
+                  { keys: ['Alt', 'H'], label: 'Open this help dialog' },
+                  { keys: ['Ctrl', 'M'], label: 'Toggle voice input (short answer)' },
+                  { keys: ['Ctrl', 'Shift', 'Space'], label: 'Start or stop a voice command' },
+                  { keys: ['Tab'], label: 'Move to next element' },
+                  { keys: ['Enter', 'Space'], label: 'Activate buttons & select answers' },
+                ].map(s => (
+                  <div key={s.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                    <span className="text-sm text-foreground">{s.label}</span>
+                    <div className="flex items-center gap-1">
+                      {s.keys.map((k, i) => (
+                        <span key={k} className="flex items-center gap-1">
+                          <kbd className="inline-flex items-center px-2 py-0.5 rounded bg-muted border border-border text-xs font-mono font-semibold">{k}</kbd>
+                          {i < s.keys.length - 1 && <span className="text-muted-foreground text-xs">+</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-          <DialogFooter>
+              <div className="flex items-start gap-2.5 p-3 mt-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
+                <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                  Compatible with NVDA, JAWS, VoiceOver, and Orca screen readers.
+                  All questions are read automatically when navigating.
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          <DialogFooter className="mt-4">
             <Button onClick={() => setShowHelpDialog(false)} className="w-full">Close</Button>
           </DialogFooter>
         </DialogContent>

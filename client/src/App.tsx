@@ -31,6 +31,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useOPSISAssist } from "@/hooks/useOPSISAssist";
+import { buildHelpMessage } from "@/voice/commandRegistry";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Roll number/Username is required"),
@@ -377,10 +378,43 @@ function AppAssistShortcuts({
   currentUser: { id: string; role: string };
 }) {
   const [, setLocation] = useLocation();
-  const { speak, assist } = useAccessibility();
+  const {
+    speak,
+    stopSpeaking,
+    pauseSpeaking,
+    resumeSpeaking,
+    updateSettings,
+    settings,
+    announceToScreenReader,
+    assist,
+  } = useAccessibility();
 
   const navigationCommandHandler = (command: import('@/voice/types').ParsedVoiceCommand): boolean | void => {
     switch (command.definition.id) {
+      case 'help':
+        speak(buildHelpMessage('global'), { priority: 'interrupt' });
+        break;
+      case 'repeat':
+        speak('You are on the OPSIS portal. Say start exam to begin an exam, or say open settings to configure options.', { priority: 'interrupt' });
+        break;
+      case 'cancel':
+        stopSpeaking();
+        announceToScreenReader('Speech cancelled.');
+        break;
+      case 'pauseSpeech':
+        pauseSpeaking();
+        break;
+      case 'resumeSpeech':
+        resumeSpeaking();
+        break;
+      case 'increaseSpeechRate':
+        updateSettings({ speechRate: Math.min(20, settings.speechRate + 1) });
+        speak('Speech rate increased.', { priority: 'interrupt' });
+        break;
+      case 'decreaseSpeechRate':
+        updateSettings({ speechRate: Math.max(5, settings.speechRate - 1) });
+        speak('Speech rate decreased.', { priority: 'interrupt' });
+        break;
       case 'navigateHome':
         setLocation('/');
         speak('Opening the dashboard.', { priority: 'interrupt' });

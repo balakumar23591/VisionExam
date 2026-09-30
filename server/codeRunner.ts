@@ -69,13 +69,28 @@ console.log("__OPSIS_RESULT__" + JSON.stringify(context.__opsisResult));
   await writeFile(scriptPath, runner, { mode: 0o600 });
   try {
     const heapMb = Math.min(Math.max(32, memoryMb), 256);
-    const command = `ulimit -t ${Math.max(1, Math.ceil(timeoutMs / 1000))}; ulimit -v 1048576; ulimit -f 128; exec node --max-old-space-size=${heapMb} --experimental-permission --allow-fs-read="$1" "$1"`;
-    const { stdout } = await execFileAsync("bash", ["-c", command, "opsis", scriptPath], {
-      cwd: directory,
-      env: { PATH: process.env.PATH ?? "" },
-      timeout: timeoutMs + 500,
-      maxBuffer: MAX_OUTPUT_BYTES,
-    });
+    let stdout: string;
+    if (process.platform === "win32") {
+      const res = await execFileAsync(process.execPath, [
+        `--max-old-space-size=${heapMb}`,
+        scriptPath,
+      ], {
+        cwd: directory,
+        env: { PATH: process.env.PATH ?? "" },
+        timeout: timeoutMs + 500,
+        maxBuffer: MAX_OUTPUT_BYTES,
+      });
+      stdout = res.stdout;
+    } else {
+      const command = `ulimit -t ${Math.max(1, Math.ceil(timeoutMs / 1000))}; ulimit -v 1048576; ulimit -f 128; exec node --max-old-space-size=${heapMb} --experimental-permission --allow-fs-read="$1" "$1"`;
+      const res = await execFileAsync("bash", ["-c", command, "opsis", scriptPath], {
+        cwd: directory,
+        env: { PATH: process.env.PATH ?? "" },
+        timeout: timeoutMs + 500,
+        maxBuffer: MAX_OUTPUT_BYTES,
+      });
+      stdout = res.stdout;
+    }
     const resultLine = stdout.split(/\r?\n/).findLast(line => line.startsWith("__OPSIS_RESULT__"));
     if (!resultLine) throw new Error("The solution did not return a result");
     const encoded = resultLine.slice("__OPSIS_RESULT__".length);
@@ -138,13 +153,25 @@ print("__OPSIS_RESULT__" + json.dumps(__opsis_result, separators=(",", ":")))
   await writeFile(scriptPath, harness, { mode: 0o600 });
 
   try {
-    const command = `ulimit -t ${Math.max(1, Math.ceil(timeoutMs / 1000))}; ulimit -v ${Math.max(32768, memoryMb * 1024)}; ulimit -f 128; exec python3 -I -S "$1"`;
-    const { stdout } = await execFileAsync("bash", ["-c", command, "opsis", scriptPath], {
-      cwd: directory,
-      env: { PATH: process.env.PATH ?? "" },
-      timeout: timeoutMs,
-      maxBuffer: MAX_OUTPUT_BYTES,
-    });
+    let stdout: string;
+    if (process.platform === "win32") {
+      const res = await execFileAsync("python", ["-B", "-I", "-S", scriptPath], {
+        cwd: directory,
+        env: { ...process.env },
+        timeout: timeoutMs + 1000,
+        maxBuffer: MAX_OUTPUT_BYTES,
+      });
+      stdout = res.stdout;
+    } else {
+      const command = `ulimit -t ${Math.max(1, Math.ceil(timeoutMs / 1000))}; ulimit -v ${Math.max(32768, memoryMb * 1024)}; ulimit -f 128; exec python3 -B -I -S "$1"`;
+      const res = await execFileAsync("bash", ["-c", command, "opsis", scriptPath], {
+        cwd: directory,
+        env: { PATH: process.env.PATH ?? "" },
+        timeout: timeoutMs + 1000,
+        maxBuffer: MAX_OUTPUT_BYTES,
+      });
+      stdout = res.stdout;
+    }
     const resultLine = stdout.split(/\r?\n/).findLast(line => line.startsWith("__OPSIS_RESULT__"));
     if (!resultLine) throw new Error("The solution did not return a result");
     const encoded = resultLine.slice("__OPSIS_RESULT__".length);
@@ -162,7 +189,11 @@ print("__OPSIS_RESULT__" + json.dumps(__opsis_result, separators=(",", ":")))
       error: actualOutput === expectedOutput ? undefined : "Output did not match",
     };
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    try {
+      await rm(directory, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 });
+    } catch {
+      // Best-effort cleanup on Windows
+    }
   }
 }
 
