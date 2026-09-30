@@ -301,7 +301,9 @@ export function AccessibilityProvider({ children, userId }: { children: ReactNod
         /* ignore */
       }
     } else {
-      applyAccessibilitySettings(getDefaultSettings());
+      const defaults = getDefaultSettings();
+      setSettings(defaults);
+      applyAccessibilitySettings(defaults);
     }
 
     if (userId) {
@@ -417,9 +419,9 @@ export function AccessibilityProvider({ children, userId }: { children: ReactNod
     engineRef.current = null;
     setAssistListening(false); setAssistInterim('');
   }, []);
-  const startAssist = useCallback(() => {
+  const startAssist = useCallback((force = false) => {
     const configured = settingsRef.current;
-    if ((!configured.assistEnabled && configured.voiceMode === 'off') || desiredListeningRef.current) return;
+    if ((!force && !configured.assistEnabled && configured.voiceMode === 'off') || desiredListeningRef.current) return;
     if (!isSpeechRecognitionSupported()) {
       setAssistError('Voice input is unavailable in this browser. Keyboard controls remain available.');
       announceRef.current('Voice input is unavailable in this browser. Keyboard controls remain available.');
@@ -465,6 +467,7 @@ export function AccessibilityProvider({ children, userId }: { children: ReactNod
             break;
           }
         }
+
         logVoiceCommand({
           transcript,
           intent: matchedIntent,
@@ -488,6 +491,10 @@ export function AccessibilityProvider({ children, userId }: { children: ReactNod
       },
       message => {
         if (generation !== generationRef.current) return;
+        if (/no speech/i.test(message) && continuous) {
+          scheduleRecovery();
+          return;
+        }
         setAssistError(message); setAssistListening(false);
         if (/denied|no microphone|unavailable in this browser/i.test(message)) {
           desiredListeningRef.current = false;
@@ -501,12 +508,6 @@ export function AccessibilityProvider({ children, userId }: { children: ReactNod
     engineRef.current = engine; engine.start();
   }, []);
   startAssistRef.current = startAssist;
-  const toggleListening = useCallback(() => {
-    // The microphone control is PTT only; continuous recognition belongs to Assist.
-    if (!settingsRef.current.assistEnabled) {
-      if (desiredListeningRef.current) stopAssist(); else startAssist();
-    }
-  }, [startAssist, stopAssist]);
   const applyAssistEnabled = useCallback((enabled: boolean, includeTutorial = false) => {
     if (enabled && desiredListeningRef.current) stopAssist();
     setSettings(previous => {
@@ -522,6 +523,23 @@ export function AccessibilityProvider({ children, userId }: { children: ReactNod
       speakRef.current(message, { priority: 'interrupt' });
     }
   }, [stopAssist]);
+  const toggleListening = useCallback(() => {
+    if (settingsRef.current.assistEnabled) {
+      applyAssistEnabled(false);
+    } else if (desiredListeningRef.current) {
+      stopAssist();
+    } else {
+      if (settingsRef.current.voiceMode === 'off') {
+        setSettings(previous => {
+          const next = { ...previous, voiceMode: 'push-to-talk' as VoiceMode, voiceNavigation: true };
+          settingsRef.current = next;
+          localStorage.setItem('opsis-accessibility-settings', JSON.stringify(next));
+          return next;
+        });
+      }
+      startAssist(true);
+    }
+  }, [applyAssistEnabled, startAssist, stopAssist]);
   const requestAssistEnabled = useCallback((enabled: boolean) => {
     if (enabled) {
       const tutorialKey = `opsis-assist-tutorial:${userId ?? 'anonymous'}`;

@@ -39,7 +39,11 @@ export class VoiceNarrator {
   cancel() {
     this.generation += 1;
     this.queue = [];
-    this.speech?.cancel();
+    try {
+      this.speech?.cancel();
+    } catch {
+      // ignore
+    }
     this.active = false;
     this.onStateChange?.(false);
   }
@@ -77,18 +81,35 @@ export class VoiceNarrator {
 
     this.active = true;
     this.onStateChange?.(true, next.text);
-    utterance.onend = () => {
+
+    let finished = false;
+    let watchdog: number | null = null;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      if (watchdog !== null && typeof window !== 'undefined') window.clearTimeout(watchdog);
       if (generation !== this.generation) return;
       this.active = false;
       this.onStateChange?.(false);
       this.startNext();
     };
-    utterance.onerror = () => {
-      if (generation !== this.generation) return;
-      this.active = false;
-      this.onStateChange?.(false);
-      this.startNext();
-    };
-    this.speech.speak(utterance);
+
+    utterance.onend = finish;
+    utterance.onerror = finish;
+
+    if (typeof window !== 'undefined') {
+      const estimatedMs = Math.max(3000, ((next.text.length / 5) * 1000) / (next.options.rate ?? 1) + 2000);
+      watchdog = window.setTimeout(() => {
+        if (!finished && generation === this.generation) {
+          finish();
+        }
+      }, estimatedMs);
+    }
+
+    try {
+      this.speech.speak(utterance);
+    } catch {
+      finish();
+    }
   }
 }

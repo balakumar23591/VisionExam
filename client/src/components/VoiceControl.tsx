@@ -41,8 +41,8 @@ export function VoiceControl({
           size="sm"
           variant={isListening ? 'default' : 'outline'}
           onClick={onToggle}
-          disabled={unavailable || assistEnabled}
-          aria-pressed={isListening}
+          disabled={unavailable}
+          aria-pressed={isListening || assistEnabled}
           aria-label={assistEnabled ? 'OPSIS Assist continuous listening is enabled' : isListening ? 'Stop listening' : 'Start push-to-talk voice command listening'}
           title={unavailable ? 'Voice input is not supported in this browser' : assistEnabled ? 'Assist is listening continuously' : 'Start a short push-to-talk command session'}
           data-testid="button-voice-command"

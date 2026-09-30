@@ -50,12 +50,13 @@ export function CodingQuestionRenderer({
     try {
       announceToScreenReader('Submitting code for execution...');
       
-      const response = await apiRequest('POST', '/api/code/execute', {
+      const payload: Record<string, unknown> = {
         questionId: question.id,
         code,
         language: selectedLanguage,
-        attemptId,
-      });
+      };
+      if (attemptId) payload.attemptId = attemptId;
+      const response = await apiRequest('POST', '/api/code/execute', payload);
       
       const result = await response.json() as CodeExecutionResult;
       

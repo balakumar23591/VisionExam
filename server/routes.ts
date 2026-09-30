@@ -28,7 +28,7 @@ const registrationSchema = credentialsSchema.extend({
 });
 const codeRequestSchema = z.object({
   questionId: z.string().uuid(),
-  attemptId: z.string().uuid(),
+  attemptId: z.string().uuid().optional(),
   code: z.string().min(1).max(64 * 1024),
   language: z.enum(["javascript", "typescript", "python"]),
 });
@@ -553,12 +553,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/code/execute", async (req, res) => {
     try {
       const input = codeRequestSchema.parse(req.body);
-      const attempt = await storage.getExamAttempt(input.attemptId);
+      const question = await storage.getQuestion(input.questionId);
+      if (!question || question.type !== "coding") {
+        return res.status(400).json({ message: "Question does not belong to this attempt" });
+      }
+      let attempt = input.attemptId ? await storage.getExamAttempt(input.attemptId) : null;
+      if (!attempt) {
+        const userAttempts = await storage.getExamAttemptsByUser(req.authUser!.id);
+        attempt = userAttempts.find(a => a.examId === question.examId && !a.completedAt) ?? null;
+      }
       if (!attempt) return res.status(404).json({ message: "Exam attempt not found" });
       if (attempt.userId !== req.authUser!.id) return res.status(403).json({ message: "Forbidden" });
       if (attempt.completedAt) return res.status(409).json({ message: "This attempt is already complete" });
-      const question = await storage.getQuestion(input.questionId);
-      if (!question || question.examId !== attempt.examId || question.type !== "coding") {
+      if (question.examId !== attempt.examId) {
         return res.status(400).json({ message: "Question does not belong to this attempt" });
       }
       if (question.language !== input.language) {

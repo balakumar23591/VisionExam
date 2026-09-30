@@ -477,7 +477,7 @@ function AppAssistShortcuts({
   };
 
   useOPSISAssist('global', navigationCommandHandler, {
-    accessibility: { key: 'a', altKey: true, action: () => setOpen(open => !open) },
+    accessibility: { key: 'a', altKey: true, action: () => setLocation('/accessibility') },
     accessibilityF11: { key: 'F11', action: () => setOpen(open => !open) },
     escape: { key: 'Escape', action: () => setOpen(false), allowInEditable: true },
   });
@@ -527,6 +527,7 @@ function App() {
       // Clear client state even if the session has already expired.
     }
     localStorage.removeItem('user');
+    localStorage.removeItem('opsis-accessibility-settings');
     setCurrentUser(null);
   };
 
